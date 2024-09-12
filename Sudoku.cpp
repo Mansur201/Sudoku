@@ -4,53 +4,104 @@
 
 using namespace std;
 
-#проверка соответсвия условиям
-bool SolveSudoku(int su[9][9]) {
-    for (int x=0; x < 9, x++) {
-        for (int y = 0; y < 9; y++) {
-            if (su[x][y] == 0)
-        }
-    }
-}
-
-bool Correct {
+// Проверка, можно ли вставить число num в ячейку (row, col)
+bool isValid(int grid[9][9], int row, int col, int num) {
+    // Проверка строки
     for (int i = 0; i < 9; i++) {
-        if (grid[row][i] == num || grid[i][col] == num || 
-            grid[row - row % 3 + i / 3][col - col % 3 + i % 3] == num) {
+        if (grid[row][i] == num) {
             return false;
         }
     }
+
+    // Проверка столбца
+    for (int i = 0; i < 9; i++) {
+        if (grid[i][col] == num) {
+            return false;
+        }
+    }
+
+    // Проверка 3x3 блока
+    int startRow = row - row % 3;
+    int startCol = col - col % 3;
+    for (int i = 0; i < 3; i++) {
+        for (int j = 0; j < 3; j++) {
+            if (grid[i + startRow][j + startCol] == num) {
+                return false;
+            }
+        }
+    }
+
     return true;
 }
 
-int main()
-{
-    int su[9][9];
-    cout << " Введите ваш судоку, вместо пустой строки введите 0:" << endl;
-    for (int i = 0; i < 9; ++i) {
-        for (int j = 0; j < 9; ++j) {
-            cin >> sudoku[i][j];
+// Функция для решения судоку с помощью метода backtracking
+bool solveSudoku(int grid[9][9]) {
+    int row, col;
+    bool emptySpot = false;
+
+    // Поиск пустой ячейки (значение 0)
+    for (row = 0; row < 9; row++) {
+        for (col = 0; col < 9; col++) {
+            if (grid[row][col] == 0) {
+                emptySpot = true;
+                break;
+            }
+        }
+        if (emptySpot) break;
+    }
+
+    // Если пустых ячеек нет, судоку решено
+    if (!emptySpot) {
+        return true;
+    }
+
+    // Пробуем вставить числа от 1 до 9
+    for (int num = 1; num <= 9; num++) {
+        if (isValid(grid, row, col, num)) {
+            grid[row][col] = num;
+
+            // Рекурсивно вызываем функцию для следующей ячейки
+            if (solveSudoku(grid)) {
+                return true;
+            }
+
+            // Если решение не найдено, сбрасываем значение
+            grid[row][col] = 0;
         }
     }
 
-    cout << "Вы ввели:" << endl;
+    return false;
+}
+
+// Функция для вывода судоку
+void printSudoku(int grid[9][9]) {
     for (int i = 0; i < 9; ++i) {
         for (int j = 0; j < 9; ++j) {
-            cout << sudoku[i][j] << " ";
+            cout << grid[i][j] << " ";
         }
         cout << endl;
     }
+}
 
+int main() {
+    int grid[9][9];
+
+    cout << "Enter your Sudoku, where empty cells are represented by 0:" << endl;
     for (int i = 0; i < 9; ++i) {
         for (int j = 0; j < 9; ++j) {
-            if (su[i][j] != 0)
-            su[i][j] = su[i][j];
-            else
-            SolveSudoku (int su[9][9]);
+            cin >> grid[i][j];
         }
     }
 
+    cout << "You entered:" << endl;
+    printSudoku(grid);
 
+    if (solveSudoku(grid)) {
+        cout << "Solved Sudoku:" << endl;
+        printSudoku(grid);
+    } else {
+        cout << "Impossible to solve Sudoku." << endl;
+    }
 
     return 0;
 }
